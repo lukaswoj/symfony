@@ -81,6 +81,21 @@ class Controller extends ContainerAware
     }
 
     /**
+     * Returns a RedirectResponse to the URL represented by given $routeName and $parameters.
+     *
+     * @param string  $routeName    The route name to redirect to
+     * @param array   $parameters   Parameters for used Route
+     * @param int     $status       The status code to use for the Response
+     *
+     * @return RedirectResponse
+     */
+    public function redirectToRoute($routeName, $parameters = array(), $status = 302)
+    {
+        $url = $this->generateUrl($routeName, $parameters);
+        return new RedirectResponse($url, $status);
+    }
+
+    /**
      * Returns a rendered view.
      *
      * @param string $view       The view name
@@ -273,4 +288,38 @@ class Controller extends ContainerAware
     {
         return $this->container->get($id);
     }
+
+    /**
+     * Shortcut method to add a flash message
+     *
+     * @param string $type      Type of message
+     * @param string $message   Messag itself
+     *
+     * @return void
+     */
+    public function addFlash($type, $message)
+    {
+        $this->container->get('session')->getFlashBag()->add($type,$message);
+    }
+
+    /**
+     * Shortcut method to security context isGranted()
+     *
+     * @param type $role
+     * @param type $object
+     * @return boolean
+     * @throws AccessDeniedException
+     */
+    public function isGranted($role, $object)
+    {
+       $securityContext = $this->get('security.context');
+
+        // check for edit access
+        if (false === $securityContext->isGranted($role, $object)) {
+            throw new AccessDeniedException();
+        }
+
+        return true;
+    }
+
 }
